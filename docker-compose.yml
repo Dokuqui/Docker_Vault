@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/cache"
+    networks:
+      - my-network
+
+  vault-filesystem:
+    build:
+      context: ./docker/vault
+    image: isemenov/vault-filesystem:0.1
+    ports:
+      - 8200:8200
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8200
+      - VAULT_API_ADDR=http://127.0.0.1:8200
+    command: server -config=/vault/config/vault-config.hcl
+    cap_add:
+      - IPC_LOCK
+
+networks:
+  my-network:
+    driver: bridge
